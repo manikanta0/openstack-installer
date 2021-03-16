@@ -20,13 +20,25 @@ cp /root/files/aviuser-openrc.sh /root/
 source /root/admin-openrc.sh
 
 export DEBIAN_FRONTEND=noninteractive
-add-apt-repository -y cloud-archive:stein
+set +e
+for I in 1 2 3
+do
+    add-apt-repository -y cloud-archive:stein
+    if [ $? == 0 ]
+    then
+        break
+    fi
+done
+set -e
 apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 apt-get --yes install software-properties-common
 apt-get install -y python-openstackclient python-pip git
 apt-get install -y ssh-client
 
 # install mysql
+apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+add-apt-repository 'deb [arch=amd64,arm64,ppc64el] https://mirror.vpsfree.cz/mariadb/repo/10.4/ubuntu bionic main'
+apt-get -y update
 apt-get -y install mariadb-server python-pymysql && service mysql restart
 mysqladmin -u root password avi123
 cp /root/files/mysqld_openstack.cnf /etc/mysql/mariadb.conf.d/99-openstack.cnf

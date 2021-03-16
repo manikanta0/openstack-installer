@@ -1,7 +1,9 @@
 set -x
 set -e
 interface="ens4"
-cidr="10.90.0.0/16"
+(dhclient -r $interface; dhclient $interface)
+ip_pref=`ifconfig $interface | grep "inet addr" | awk '{split($2, a, ":"); split(a[2], b, "."); printf("%s.%s.", b[1], b[2]);}'`
+cidr=${ip_pref}0.0/16
 
 my_mac=`ifconfig $interface | grep "HWaddr" | awk '{print $5;}'`
 if [ -z "$my_mac" ]; then
@@ -10,10 +12,11 @@ if [ -z "$my_mac" ]; then
 fi
 
 # Resolve openstack-controller
-sed -i "/nameserver/d" /etc/resolv.conf
-sed -i "/search/d" /etc/resolv.conf
-echo "nameserver 10.10.0.100" >> /etc/resolv.conf
-echo "search avi.local" >> /etc/resolv.conf
+#sed -i "/nameserver/d" /etc/resolv.conf
+#sed -i "/search/d" /etc/resolv.conf
+#echo "nameserver 10.10.0.100" >> /etc/resolv.conf
+#echo "search avi.local" >> /etc/resolv.conf
+echo "10.50.62.22     openstack-controller.avi.local" >> /etc/hosts
 
 # Clean up any OS_ variables set
 for i in `env | grep OS_ | cut -d'=' -f1`;do unset $i;done

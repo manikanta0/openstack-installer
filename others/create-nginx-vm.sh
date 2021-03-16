@@ -11,10 +11,11 @@ netid=`neutron net-show vip4 -c 'id' --format 'value'`
 net6id=`neutron net-show vip6 -c 'id' --format 'value'`
 net2id=`neutron net-show vip42 -c 'id' --format 'value'`
 net3id=`neutron net-show demo-vip4 -c 'id' --format 'value'`
-openstack server create --flavor m1.se \
-    --image trusty \
+openstack server create --flavor m1.vm \
+    --image ubuntu1604 \
     --user-data ./cloud-init-client.sh \
     --config-drive True \
+    --security-group allow-all \
     --nic net-id=$netid,v4-fixed-ip=10.0.2.20 \
     --nic net-id=$net6id,v6-fixed-ip='a100::20' \
     --nic net-id=$net2id,v4-fixed-ip=192.168.2.12 \
@@ -49,10 +50,11 @@ do
             done
             echo "Client VM deleted"
             sleep 5
-            openstack server create --flavor m1.se \
+            openstack server create --flavor m1.vm \
                 --image trusty \
                 --user-data ./cloud-init-client.sh \
                 --config-drive True \
+                --security-group allow-all \
                 --nic net-id=$netid,v4-fixed-ip=10.0.2.20 \
                 --nic net-id=$net6id,v6-fixed-ip='a100::20' \
                 --nic net-id=$net2id,v4-fixed-ip=192.168.2.12 \
@@ -81,10 +83,11 @@ set -e
 # create server in data IPv4 and data IPv6 network
 netid=`neutron net-show data4 -c 'id' --format 'value'`
 net6id=`neutron net-show data6 -c 'id' --format 'value'`
-openstack server create --flavor m1.se \
-    --image trusty \
+openstack server create --flavor m1.vm \
+    --image ubuntu1604 \
     --user-data ./cloud-init-server.sh \
     --config-drive True \
+    --security-group allow-all \
     --nic net-id=$netid,v4-fixed-ip=10.0.3.10 \
     --nic net-id=$net6id,v6-fixed-ip='b100::10' \
     server1
@@ -117,10 +120,11 @@ do
             done
             echo "Server VM deleted"
             sleep 5
-            openstack server create --flavor m1.se \
+            openstack server create --flavor m1.vm \
                 --image trusty \
                 --user-data ./cloud-init-server.sh \
                 --config-drive True \
+                --security-group allow-all \
                 --nic net-id=$netid,v4-fixed-ip=10.0.3.10 \
                 --nic net-id=$net6id,v6-fixed-ip='b100::10' \
                 server1
